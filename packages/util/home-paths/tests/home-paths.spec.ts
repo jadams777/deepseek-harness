@@ -20,9 +20,9 @@ afterEach(() => {
 
 describe('dsh path helpers', () => {
   it('owns the shared default DSH home directory name', () => {
-    expect(DSH_HOME_DIR_NAME).toBe('.dsh')
-    expect(DEFAULT_DSH_HOME_DISPLAY).toBe('~/.dsh')
-    expect(defaultDshHome()).toBe(join(homedir(), '.dsh'))
+    expect(DSH_HOME_DIR_NAME).toBe('.keli')
+    expect(DEFAULT_DSH_HOME_DISPLAY).toBe('~/.keli')
+    expect(defaultDshHome()).toBe(join(homedir(), '.keli'))
   })
 
   it('expands tilde paths without changing non-tilde paths', () => {
@@ -38,6 +38,7 @@ describe('dsh path helpers', () => {
 
     expect(resolveDshHome('/tmp/explicit-dsh', { DSH_HOME: '~/env-dsh' })).toBe(resolve('/tmp/explicit-dsh'))
     expect(resolveDshHome(undefined, { DSH_HOME: '~/env-dsh' })).toBe(envHome)
+    expect(resolveDshHome(undefined, { KELI_HOME: '~/keli-env', DSH_HOME: '~/env-dsh' })).toBe(join(homedir(), 'keli-env'))
     expect(resolveDshHome(undefined, {})).toBe(defaultDshHome())
   })
 
@@ -53,8 +54,8 @@ describe('dsh path helpers', () => {
   })
 
   it('labels a resolved home by whether it is the default root', () => {
-    expect(dshHomeDisplay(resolve(defaultDshHome()))).toBe('~/.dsh')
-    expect(dshHomeDisplay('/some/other/root')).toBe('$DSH_HOME')
+    expect(dshHomeDisplay(resolve(defaultDshHome()))).toBe('~/.keli')
+    expect(dshHomeDisplay('/some/other/root')).toBe('$KELI_HOME')
   })
 
   it.each([

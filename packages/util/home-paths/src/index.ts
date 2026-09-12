@@ -1,5 +1,5 @@
 /**
- * Shared filesystem path helpers for DeepSeek Harness user data.
+ * Shared filesystem path helpers for Keli user data.
  *
  * @module @deepseek-ai/dsh-home-paths
  */
@@ -8,14 +8,17 @@ import { opendir, realpath } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { basename, dirname, join, resolve } from 'node:path'
 
-/** Directory name for the default DeepSeek Harness home under the OS home. */
-export const DSH_HOME_DIR_NAME = '.dsh'
+/** Directory name for the default Keli home under the OS home. */
+export const DSH_HOME_DIR_NAME = '.keli'
 
-/** Stable user-facing display form for the default DeepSeek Harness home. */
+/** Stable user-facing display form for the default Keli home. */
 export const DEFAULT_DSH_HOME_DISPLAY = `~/${DSH_HOME_DIR_NAME}`
 
-/** Environment variable that overrides the default DeepSeek Harness home. */
+/** Environment variable that overrides the default Keli home (kept for upstream compatibility). */
 export const DSH_HOME_ENV = 'DSH_HOME'
+
+/** Environment variable that overrides the Keli home; preferred over the legacy name. */
+export const KELI_HOME_ENV = 'KELI_HOME'
 
 /**
  * Give a native filesystem watcher one canonical spelling of a path, even
@@ -55,8 +58,8 @@ export async function canonicalizeWatchPath(path: string): Promise<string> {
 }
 
 /**
- * Resolve the default DeepSeek Harness home using Node's platform path rules.
- * @returns the absolute default harness home path.
+ * Resolve the default Keli home using Node's platform path rules.
+ * @returns the absolute default home path.
  */
 export function defaultDshHome(): string {
   return join(homedir(), DSH_HOME_DIR_NAME)
@@ -74,25 +77,26 @@ export function expandHomePath(path: string): string {
 }
 
 /**
- * Resolve the single-root DeepSeek Harness home.
+ * Resolve the single-root Keli home.
  *
- * Precedence, highest first: an explicit configured path, `$DSH_HOME`, then
- * `~/.dsh`. The harness keeps all user data under one root. An empty or
- * whitespace-only `$DSH_HOME` is treated as unset, so a blank override never
- * resolves the home to the current working directory.
- * @param configured - explicit harness-home override, which has highest precedence.
- * @param env - environment mapping used to read `DSH_HOME`.
- * @returns the normalized absolute harness home path.
+ * Precedence, highest first: an explicit configured path, `$KELI_HOME`, the
+ * legacy `$DSH_HOME`, then `~/.keli`. All user data stays under one root. An
+ * empty or whitespace-only override is treated as unset, so a blank value
+ * never resolves the home to the current working directory.
+ * @param configured - explicit home override, which has highest precedence.
+ * @param env - environment mapping used to read `KELI_HOME`/`DSH_HOME`.
+ * @returns the normalized absolute home path.
  */
 export function resolveDshHome(configured?: string, env: Record<string, string | undefined> = process.env): string {
-  const fromEnv = env[DSH_HOME_ENV]
-  const selected = configured ?? (fromEnv !== undefined && fromEnv.trim().length > 0 ? fromEnv : defaultDshHome())
+  const candidates = [env[KELI_HOME_ENV], env[DSH_HOME_ENV]]
+  const fromEnv = candidates.find(value => value !== undefined && value.trim().length > 0)
+  const selected = configured ?? (fromEnv !== undefined ? fromEnv : defaultDshHome())
   return resolve(expandHomePath(selected))
 }
 
 /**
- * Join path segments onto the resolved DeepSeek Harness home.
- * @param segments - path segments appended to the Harness home; an empty list returns the home itself.
+ * Join path segments onto the resolved Keli home.
+ * @param segments - path segments appended to the home; an empty list returns the home itself.
  * @returns the normalized absolute joined path.
  */
 export function dshHomePath(...segments: string[]): string {
@@ -111,13 +115,13 @@ export function dshCachePath(optionsOrSegment: { dshHome?: string } | string = {
 }
 
 /**
- * Describe a resolved harness home symbolically for user-facing display.
+ * Describe a resolved home symbolically for user-facing display.
  *
  * It never returns an absolute machine path: the default home is labelled
- * `~/.dsh`, and any configured home is labelled `$DSH_HOME`.
+ * `~/.keli`, and any configured home is labelled `$KELI_HOME`.
  * @param resolvedHome - the absolute path returned by {@link resolveDshHome}.
- * @returns `~/.dsh` for the default home, otherwise `$DSH_HOME`.
+ * @returns `~/.keli` for the default home, otherwise `$KELI_HOME`.
  */
 export function dshHomeDisplay(resolvedHome: string): string {
-  return resolvedHome === resolve(defaultDshHome()) ? DEFAULT_DSH_HOME_DISPLAY : `$${DSH_HOME_ENV}`
+  return resolvedHome === resolve(defaultDshHome()) ? DEFAULT_DSH_HOME_DISPLAY : `$${KELI_HOME_ENV}`
 }

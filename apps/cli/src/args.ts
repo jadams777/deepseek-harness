@@ -1,5 +1,5 @@
 /**
- * Commander adapter for the `dsh` command line.
+ * Commander adapter for the `keli` command line.
  *
  * The launcher parses only what it owns — which profile to boot, which extra
  * patch overlays to apply, and the config dumps — and hands **everything after
@@ -7,8 +7,8 @@
  * their own flag families and print their own `--help` (see
  * `@deepseek-ai/dsh-cmdline`). Launcher flags therefore come first: the first
  * token this parser does not recognize starts the inner arguments, so
- * `dsh --profile tui --resume abc` boots the tui profile with `--resume abc`,
- * and `dsh --profile web -h` prints the web app's help, not this one's.
+ * `keli --profile tui --resume abc` boots the tui profile with `--resume abc`,
+ * and `keli --profile web -h` prints the web app's help, not this one's.
  *
  * `web` is a hardcoded alias for `--profile web`; `plugin` manages a profile's
  * plugin dependencies by forwarding to pnpm.
@@ -74,14 +74,14 @@ function rejectElectronProfile(program: Command, profile: string): void {
 /** The launcher's own help text; each app prints its own. */
 const HELP_EXAMPLES = `
 Examples:
-  dsh --profile web                          boot the web profile (same as: dsh web)
-  dsh --profile rescue --from-default-profile web
+  keli --profile web                          boot the web profile (same as: keli web)
+  keli --profile rescue --from-default-profile web
                                              create rescue from the shipped web template, then boot it
-  dsh --profile headless "run the tests"     answer one task, print the result, and exit
-  dsh --profile tui --patch ./extra.yml      boot a custom profile with one extra overlay
-  dsh --profile tui --resume <session>       arguments after the launcher flags reach the app
-  dsh --profile web --help                   the web app's own flags and help
-  dsh plugin --profile tui add <package>     install a plugin into the tui profile
+  keli --profile headless "run the tests"     answer one task, print the result, and exit
+  keli --profile tui --patch ./extra.yml      boot a custom profile with one extra overlay
+  keli --profile tui --resume <session>       arguments after the launcher flags reach the app
+  keli --profile web --help                   the web app's own flags and help
+  keli plugin --profile tui add <package>     install a plugin into the tui profile
 `
 
 /**
@@ -129,9 +129,9 @@ export function parseDshArgs(argv: readonly string[], version: string): DshInvoc
   // inferred type would be circular through its own chain.
   const program: Command = new Command()
   program
-    .name('dsh')
+    .name('keli')
     .version(version, '-V, --version', 'output the version number')
-    .description('dsh: boot a DeepSeek Harness profile — an ordered stack of plugin-bundle patch layers under your own overrides.')
+    .description('keli: boot a Keli profile — an ordered stack of plugin-bundle patch layers under your own overrides.')
     .addHelpText('after', HELP_EXAMPLES)
     .exitOverride()
     // The launcher's flags come first and end at the first token it does not
@@ -142,7 +142,7 @@ export function parseDshArgs(argv: readonly string[], version: string): DshInvoc
     .passThroughOptions()
     .enablePositionalOptions()
     .argument('[args...]', 'arguments for the booted profile\'s app (see: dsh --profile <name> --help)')
-    .option('--profile <name>', 'the profile under $DSH_HOME/profiles to boot')
+    .option('--profile <name>', 'the profile under $KELI_HOME/profiles to boot')
     .option('--from-default-profile <name>', 'initialize a new custom profile from a shipped profile template')
     .option('--patch <path>', 'extra patch-list overlay applied after the profile layer (repeatable)', collect)
     .option('--dump-config', 'print the composed profile tree and exit')

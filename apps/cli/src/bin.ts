@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Command-line entry for dsh.
+ * Command-line entry for keli.
  * @module @deepseek-ai/dsh/bin
  */
 
@@ -22,7 +22,7 @@ function readVersion(): string {
 }
 
 /**
- * Run the public dsh command-line interface.
+ * Run the public keli command-line interface.
  * @returns a promise that settles when the selected command mode finishes.
  */
 export async function runCli(): Promise<void> {
@@ -32,7 +32,7 @@ export async function runCli(): Promise<void> {
     case 'profile': {
       const { runProfile } = await import('./profile-boot.ts')
       await runProfile({
-        environment: loadLayeredEnv('dsh'),
+        environment: loadLayeredEnv('keli'),
         profile: invocation.profile,
         fromDefaultProfile: invocation.fromDefaultProfile,
         patchFiles: invocation.patches,
@@ -57,7 +57,7 @@ export async function runCli(): Promise<void> {
     }
     default:
       invocation satisfies never
-      throw new Error(`dsh: unhandled invocation mode ${JSON.stringify(invocation)}`)
+      throw new Error(`keli: unhandled invocation mode ${JSON.stringify(invocation)}`)
   }
 }
 

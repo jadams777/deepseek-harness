@@ -1,75 +1,43 @@
-# DeepSeek Harness
+# Keli
 
-English | [中文](README.zh.md)
+Keli is your AI assistant: boot agent profiles locally, run sessions from the terminal or the built-in browser UI, and extend everything with plugins.
 
-DeepSeek Harness (`dsh`) is an open-source agent harness developed by [DeepSeek AI](https://deepseek.com).
+Keli is a soft fork of [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (MIT-licensed), rebranded and extended with:
 
-It is built on an **everything-is-a-plugin** architecture and powered by [Cordis](https://github.com/cordiverse/cordis), whose design is described in [_A Programming Paradigm for Spatiotemporal Composability_](https://arxiv.org/abs/2608.25512).
+- **Keli account sign-in** — on first launch, and on any launch without a stored session, Keli prints a link you click to log in or sign up with your Keli account. Nothing runs until you are signed in.
+- **OpenRouter, preconfigured** — the LLM provider is auto-configured to OpenRouter; paste your own OpenRouter API key once when prompted.
+- **Server-controlled model allowlist** — the list of allowed models is served by Keli and refreshed on every launch. Today it contains exactly one model: `z-ai/glm-5.3-flash` (GLM 5.3 Flash).
 
-Documentation: [https://deepseek-harness.github.io/deepseek-harness/](https://deepseek-harness.github.io/deepseek-harness/)
+## Quick start
 
-## Developer preview
-
-DeepSeek Harness is in _developer preview_ and iterating rapidly. **THERE WILL BE COMPATIBILITY-BREAKING CHANGES.**
-
-Review the [safety notice](SAFETY.md) before running the project.
-
-## Run
-
-### Run from `npm`
-
-Install `Node.js`, then run:
+From a repository checkout:
 
 ```sh
-npx @deepseek-ai/dsh web
-```
-
-The command starts the Web UI at `http://127.0.0.1:3080` by default and opens it in the default browser for a local launch. An SSH launch only prints the host URL because the SSH client or editor owns the local forwarded address. Pass `--no-open` to run the server without opening a browser. See [Web UI guide](docs/user/guide/index.md).
-
-### Run from source
-
-To run from a repository checkout:
-
-```sh
-git clone https://github.com/deepseek-ai/deepseek-harness.git
-cd deepseek-harness
 pnpm install
 pnpm run build
-pnpm dsh web
+pnpm keli web        # boots the web profile and opens the UI
 ```
 
-`pnpm run build` prepares the repository artifacts. `pnpm dsh web` uses those built artifacts without rebuilding.
+From an installed package (once published):
 
-## Community and support
-
-- Submit feedback or bug reports through [GitHub Discussions](https://github.com/deepseek-ai/deepseek-harness/discussions).
-- Add the [`dsh-plugin`](https://github.com/topics/dsh-plugin) topic to your plugin repository for discoverability.
-- Join <a href="https://discord.gg/Ycq5dCaS4">DeepSeek Harness Discord community</a>.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Development
-
-Start with the [development guide](docs/development.md) and [architecture documentation](docs/architecture.md).
-
-For agents, follow [AGENTS.md](AGENTS.md).
-
-## Citation
-
-```bibtex
-@misc{deepseek-harness2026,
-  title={DeepSeek Harness: Everything is a Plugin},
-  author={DeepSeek-AI},
-  year={2026},
-  publisher={GitHub},
-  howpublished={\url{https://github.com/deepseek-ai/deepseek-harness}},
-}
+```sh
+npx @keli/cli web
 ```
+
+The web UI serves on `http://127.0.0.1:3080`. Other profiles boot the same way: `keli --profile headless "answer one task"`, `keli --profile tui`, and so on. Run `keli --help` for the launcher's flags; every app prints its own help after the launcher flags.
+
+## Keli account
+
+Keli checks your authentication on every launch. When you are unauthenticated, it prints a one-time sign-in link and shows the same link in the web UI. Opening the link walks you through Keli account login or sign-up in your browser and hands the session back to the local app over loopback. The `KELI_WEB_URL` environment variable overrides the Keli web app the flow talks to (default `https://app.keli.ai`).
+
+## Configuration
+
+Profiles, credentials, and caches live under the Keli home, `$KELI_HOME` (default `~/.keli`; the legacy `$DSH_HOME` spelling is still honored). See `apps/cli/reference/README.md` for the full profile and patch-layer reference inherited from upstream.
+
+## Relationship to DeepSeek Harness
+
+Keli is an independent project built on the open-source DeepSeek Harness codebase; it is not affiliated with, endorsed by, or sponsored by DeepSeek. "DeepSeek Harness" is a trademark of DeepSeek — this fork refers to it solely to describe its origin, per the upstream brand guidelines. The upstream architecture, plugin system, and documentation remain the best deep-dive reference for everything under `packages/`.
 
 ## License
 
-[MIT](LICENSE)
-
-Third-party dependencies and their licenses are disclosed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+MIT — see [LICENSE](./LICENSE) and [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).

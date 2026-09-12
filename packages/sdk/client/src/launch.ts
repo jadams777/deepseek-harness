@@ -47,21 +47,26 @@ function manifest(url: string): PackageManifest {
 }
 
 /**
- * Resolve and version-check a dsh executable from package manifests.
- * @param dshManifestUrl - resolved URL of the dsh package manifest.
+ * Resolve and version-check a keli executable from package manifests.
+ * @param dshManifestUrl - resolved URL of the CLI package manifest.
  * @param clientManifestUrl - resolved URL of the SDK client manifest.
- * @returns the absolute dsh executable path.
+ * @returns the absolute CLI executable path.
  */
 export function resolveDshBinFromManifests(dshManifestUrl: string, clientManifestUrl: string): string {
   const dshManifest = manifest(dshManifestUrl)
   const clientManifest = manifest(clientManifestUrl)
   if (typeof dshManifest.version !== 'string' || dshManifest.version !== clientManifest.version) {
-    throw new Error(`dsh SDK client ${String(clientManifest.version)} requires the same dsh version, got ${String(dshManifest.version)}`)
+    throw new Error(`keli SDK client ${String(clientManifest.version)} requires the same keli version, got ${String(dshManifest.version)}`)
   }
-  const bin = typeof dshManifest.bin === 'object' && dshManifest.bin !== null
-    ? (dshManifest.bin as Record<string, unknown>).dsh
+  // The Keli fork renames the bin to `keli`; accept the upstream `dsh` name so
+  // manifests and fixtures from either side resolve.
+  const binRecord = typeof dshManifest.bin === 'object' && dshManifest.bin !== null
+    ? (dshManifest.bin as Record<string, unknown>)
+    : undefined
+  const bin = binRecord !== undefined
+    ? (binRecord.keli ?? binRecord.dsh)
     : dshManifest.bin
-  if (typeof bin !== 'string' || bin === '') throw new Error('@deepseek-ai/dsh declares no dsh executable')
+  if (typeof bin !== 'string' || bin === '') throw new Error('@keli/cli declares no keli executable')
   return resolve(dirname(fileURLToPath(dshManifestUrl)), bin)
 }
 
