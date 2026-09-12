@@ -28,7 +28,16 @@ The web UI serves on `http://127.0.0.1:3080`. Other profiles boot the same way: 
 
 ## Keli account
 
-Keli checks your authentication on every launch. When you are unauthenticated, it prints a one-time sign-in link and shows the same link in the web UI. Opening the link walks you through Keli account login or sign-up in your browser and hands the session back to the local app over loopback. The `KELI_WEB_URL` environment variable overrides the Keli web app the flow talks to (default `https://app.keli.ai`).
+Keli checks your authentication on every launch. When you are unauthenticated, it prints a one-time sign-in link, opens its local UI on a sign-in wall showing the same link, and starts nothing until you have signed in. Opening the link walks you through Keli account login or sign-up in your browser and hands the session back to the local app over loopback. The session is stored as `harness-auth.json` under the Keli home and revalidated (and rotated) on every launch.
+
+Environment overrides:
+
+- `KELI_WEB_URL` — the Keli web app the sign-in flow talks to (default `https://app.keli.ai`; point it at a local `app.keli.ai` checkout during development).
+- `KELI_AUTH_DISABLED=1` — run without a Keli account. For upstream contributors and CI; the shipped product never sets it.
+
+## Models
+
+The LLM provider is preconfigured to **OpenRouter**; paste your API key once when the Models page asks (it lands in `~/.keli/.credentials.yaml`; an `OPENROUTER_API_KEY` in the environment or `~/.keli/.env` works too). The model list is not the OpenRouter catalog: it is the allowlist the Keli server delivers on every launch, and today it contains exactly one model — `z-ai/glm-5.3-flash` (GLM 5.3 Flash) — which every session defaults to.
 
 ## Configuration
 

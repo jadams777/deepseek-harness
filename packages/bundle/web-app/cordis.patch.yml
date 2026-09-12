@@ -482,3 +482,40 @@
       name: '@deepseek-ai/dsh-agent-presets'
       config:
         default: standard
+
+# ── Keli: account-gated, OpenRouter-only model surface ──────────────────────
+#
+# The launch-time account check, the sign-in wall while signed out, the /auth
+# handoff routes, and the `keliRuntime` service (the server-delivered model
+# allowlist and default). See src/keli-auth.ts. KELI_WEB_URL retargets the
+# flow; KELI_AUTH_DISABLED=1 opts a development tree out entirely.
+- insert:
+    - id: keli-auth
+      name: '@deepseek-ai/dsh-web-app/keli-auth'
+      config:
+        printLink: true
+
+# Every session defaults to the server-controlled OpenRouter model. The
+# allowlist and default arrive through `keliRuntime`, refreshed on every
+# launch and after each sign-in, so a server-side model change reaches
+# running installs without a client update.
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  inject: [keliRuntime]
+  config:
+    provider: openrouter
+    model: !!js ctx.keliRuntime.defaultModel
+
+# The OpenRouter route narrows the pi-ai catalog to exactly the server's
+# models — the picker cannot offer a model the server did not send. The key
+# resolves per request from OPENROUTER_API_KEY (environment, ~/.keli/.env, or
+# the managed ~/.keli/.credentials.yaml the Models page writes).
+- id: llm-pi-ai
+  name: '@deepseek-ai/dsh-llm-pi-ai'
+  inject: [keliRuntime]
+  config:
+    providers:
+      openrouter:
+        apiKeyEnv: OPENROUTER_API_KEY
+        displayName: OpenRouter
+        models: !!js "ctx.keliRuntime.models.map(id => ({ id, name: id === ctx.keliRuntime.defaultModel ? 'GLM 5.3 Flash' : id }))"

@@ -112,6 +112,11 @@ export const WELCOME_NOTICE_COPY = {
 /** Snapshot mode for the lane, from $DSH_SNAPSHOT (same vocabulary as the other snapshot suites). */
 export type WebSnapshotMode = 'replay' | 'record' | 'refresh'
 
+// The keyless lane must not exercise the Keli account gate: its sign-in wall
+// would replace the served index and its launch check would call the Keli web
+// app. Same seam an upstream contributor uses (README: KELI_AUTH_DISABLED).
+process.env.KELI_AUTH_DISABLED = '1'
+
 /**
  * Resolve and validate the lane's snapshot mode.
  * @returns the active mode; unset/empty selects replay.
